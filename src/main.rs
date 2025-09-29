@@ -1,5 +1,5 @@
 use std::io::{self, Result, stdout};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, poll},
@@ -15,39 +15,21 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
+mod spinner;
+
 struct App {
-    spinner_frame: usize,
-    last_update: Instant,
+    spinner: spinner::Spinner,
 }
 
 impl App {
     fn new() -> Self {
         Self {
-            spinner_frame: 0,
-            last_update: Instant::now(),
+            spinner: spinner::Spinner::new(),
         }
     }
 
     fn update(&mut self) {
-        let now = Instant::now();
-        if now.duration_since(self.last_update) >= Duration::from_millis(80) {
-            self.spinner_frame = (self.spinner_frame + 1) % 8; // 8 frames now
-            self.last_update = now;
-        }
-    }
-
-    fn get_spinner_char(&self) -> &'static str {
-        match self.spinner_frame {
-            0 => "⠋",
-            1 => "⠙",
-            2 => "⠹",
-            3 => "⠸",
-            4 => "⠼",
-            5 => "⠴",
-            6 => "⠦",
-            7 => "⠧",
-            _ => "⠋",
-        }
+        self.spinner.update();
     }
 }
 
@@ -116,24 +98,8 @@ fn ui(f: &mut Frame, app: &App) {
         ])
         .split(size);
 
-    // Create spinner block
-    let spinner_block = Block::default()
-        .title("Loading")
-        .title_alignment(Alignment::Center)
-        .borders(Borders::ALL)
-        .style(Style::default().fg(Color::Green));
-
-    let spinner_text = format!(
-        "{} Processing... (Frame: {})",
-        app.get_spinner_char(),
-        app.spinner_frame
-    );
-    let spinner_paragraph = Paragraph::new(spinner_text)
-        .block(spinner_block)
-        .alignment(Alignment::Center)
-        .style(Style::default().fg(Color::Green).bg(Color::Black));
-
-    f.render_widget(spinner_paragraph, chunks[1]);
+    // Render spinner
+    app.spinner.render(f, chunks[1]);
 
     // Create a block with borders
     let block = Block::default()
