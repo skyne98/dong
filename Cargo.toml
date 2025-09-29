@@ -1,0 +1,9 @@
+[package]
+name = "dong"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+crossterm = "0.29.0"
+pulldown-cmark = "0.13.0"
+ratatui = "0.29.0"
