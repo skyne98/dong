@@ -40,19 +40,19 @@ struct ChatApp {
 
     // Input textbox
     textbox: Rc<RefCell<ReactiveTextbox>>,
-    
+
     // Channel to receive user messages that need to be sent to AI
     user_msg_rx: mpsc::UnboundedReceiver<String>,
-    
+
     // Channel sender to send AI events back to UI
     ai_event_tx: mpsc::UnboundedSender<AIEvent>,
-    
+
     // Channel to receive AI responses
     ai_rx: mpsc::UnboundedReceiver<AIEvent>,
-    
+
     // Handle to the current AI task (for cancellation)
     ai_task_handle: Option<JoinHandle<()>>,
-    
+
     // Index of the thinking message (if any)
     thinking_message_index: Option<usize>,
 }
@@ -63,7 +63,7 @@ impl ChatApp {
 
         // Create channels for user messages
         let (user_msg_tx, user_msg_rx) = mpsc::unbounded_channel::<String>();
-        
+
         // Create channels for AI events
         let (ai_event_tx, ai_rx) = mpsc::unbounded_channel::<AIEvent>();
 
@@ -81,16 +81,16 @@ impl ChatApp {
                     if !message_content.trim().is_empty() {
                         // Add user message to chat
                         chat_clone.add_message(Message::user(&message_content));
-                        
+
                         // Send to AI processing
                         let _ = user_msg_tx_clone.send(message_content);
                     }
                 }),
         ));
 
-        Self { 
-            chat, 
-            textbox, 
+        Self {
+            chat,
+            textbox,
             user_msg_rx,
             ai_event_tx,
             ai_rx,
@@ -122,7 +122,7 @@ impl ChatApp {
     fn scroll_chat_down(&self) {
         self.chat.scroll_down();
     }
-    
+
     fn process_ai_events(&mut self) {
         // Check for new user messages to send to AI
         while let Ok(user_message) = self.user_msg_rx.try_recv() {
@@ -130,7 +130,7 @@ impl ChatApp {
             if let Some(handle) = self.ai_task_handle.take() {
                 handle.abort();
             }
-            
+
             // Remove old thinking message if exists
             if let Some(idx) = self.thinking_message_index.take() {
                 let mut msgs = (*self.chat.messages.value()).clone();
@@ -139,29 +139,30 @@ impl ChatApp {
                     self.chat.messages.set(msgs);
                 }
             }
-            
+
             // Add new thinking message
             self.chat.add_message(Message::thinking_in_progress());
             let msg_count = self.chat.messages.value().len();
             self.thinking_message_index = Some(msg_count - 1);
-            
+
             // Spawn new AI task
             let event_tx = self.ai_event_tx.clone();
             let handle = tokio::spawn(async move {
                 use crate::ai::{AIService, MockAI};
                 let ai = MockAI::new();
-                
+
                 // Get AI response with thinking
-                let (thinking_duration, response) = ai.send_message_with_thinking(&user_message).await;
-                
+                let (thinking_duration, response) =
+                    ai.send_message_with_thinking(&user_message).await;
+
                 // Send events back to UI
                 let _ = event_tx.send(AIEvent::ThinkingComplete(thinking_duration));
                 let _ = event_tx.send(AIEvent::AgentResponse(response));
             });
-            
+
             self.ai_task_handle = Some(handle);
         }
-        
+
         // Process AI response events
         while let Ok(event) = self.ai_rx.try_recv() {
             match event {
@@ -183,13 +184,13 @@ impl ChatApp {
             }
         }
     }
-    
+
     fn cancel_ai_task(&mut self) {
         // Cancel current AI task
         if let Some(handle) = self.ai_task_handle.take() {
             handle.abort();
         }
-        
+
         // Remove thinking message
         if let Some(idx) = self.thinking_message_index.take() {
             let mut msgs = (*self.chat.messages.value()).clone();
@@ -242,18 +243,22 @@ fn run_app<B: ratatui::backend::Backend>(
     loop {
         // Process any pending AI events
         app.process_ai_events();
-        
+
         terminal.draw(|f| ui(f, app))?;
 
         // Poll for events with a short timeout
         if poll(Duration::from_millis(50))? {
             if let Event::Key(key) = event::read()? {
                 // Check for Ctrl+C to cancel AI task (works globally)
-                if key.code == KeyCode::Char('c') && key.modifiers.contains(ratatui::crossterm::event::KeyModifiers::CONTROL) {
+                if key.code == KeyCode::Char('c')
+                    && key
+                        .modifiers
+                        .contains(ratatui::crossterm::event::KeyModifiers::CONTROL)
+                {
                     app.cancel_ai_task();
                     continue;
                 }
-                
+
                 // Handle textbox input if focused
                 if app.is_textbox_focused() {
                     match key.code {

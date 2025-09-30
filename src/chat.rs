@@ -25,7 +25,7 @@ impl Sender {
             Sender::System => "System",
         }
     }
-    
+
     pub fn color(&self) -> Color {
         match self {
             Sender::User => Color::Green,
@@ -40,7 +40,7 @@ impl Sender {
 pub enum MessageType {
     Normal(String),
     ThinkingInProgress(std::time::Instant), // Agent is currently thinking (stores start time)
-    ThinkingComplete(Duration), // Agent finished thinking (stores duration)
+    ThinkingComplete(Duration),             // Agent finished thinking (stores duration)
 }
 
 /// A single chat message
@@ -59,7 +59,7 @@ impl Message {
             timestamp: Local::now(),
         }
     }
-    
+
     pub fn thinking_in_progress() -> Self {
         Self {
             sender: Sender::Agent,
@@ -67,7 +67,7 @@ impl Message {
             timestamp: Local::now(),
         }
     }
-    
+
     pub fn thinking_complete(duration: Duration) -> Self {
         Self {
             sender: Sender::Agent,
@@ -79,7 +79,7 @@ impl Message {
     pub fn user(content: impl Into<String>) -> Self {
         Self::new(Sender::User, content)
     }
-    
+
     pub fn agent(content: impl Into<String>) -> Self {
         Self::new(Sender::Agent, content)
     }
@@ -227,7 +227,7 @@ impl ReactiveChat {
                     // Display animated thinking message with elapsed time
                     let elapsed = start_time.elapsed();
                     let thinking_text = format!("💭 Thinking... ({:.1}s)", elapsed.as_secs_f64());
-                    
+
                     let header_spans = vec![
                         Span::styled(
                             format!("[{}] ", time_str),
@@ -256,7 +256,7 @@ impl ReactiveChat {
                     } else {
                         format!("💭 Thought for {}ms", duration.as_millis())
                     };
-                    
+
                     let header_spans = vec![
                         Span::styled(
                             format!("[{}] ", time_str),
