@@ -2,7 +2,7 @@ use ratatui::{
     Frame,
     layout::Rect,
     style::{Color, Style},
-    widgets::{Block, Borders, Paragraph},
+    widgets::Paragraph,
 };
 use std::time::{Duration, Instant};
 
@@ -19,8 +19,6 @@ pub struct SpinnerStyle {
     pub spinner_chars: Vec<&'static str>,
     pub fg_color: Color,
     pub bg_color: Option<Color>,
-    pub border_color: Color,
-    pub title: String,
     pub update_interval_ms: u64,
 }
 
@@ -30,8 +28,6 @@ impl Default for SpinnerStyle {
             spinner_chars: vec!["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧"],
             fg_color: Color::Green,
             bg_color: Some(Color::Black),
-            border_color: Color::Green,
-            title: "Loading".to_string(),
             update_interval_ms: 80,
         }
     }
@@ -53,16 +49,6 @@ impl Spinner {
         }
     }
 
-    /// Create a new spinner with custom style
-    pub fn with_style(style: SpinnerStyle) -> Self {
-        Self {
-            frame: 0,
-            last_update: Instant::now(),
-            style,
-            message: "Processing...".to_string(),
-        }
-    }
-
     /// Update the spinner animation
     pub fn update(&mut self) {
         let now = Instant::now();
@@ -74,8 +60,8 @@ impl Spinner {
         }
     }
 
-    /// Set a new message for the spinner
-    pub fn set_message(&mut self, message: impl Into<String>) {
+    /// Update the spinner message
+    pub fn update_message(&mut self, message: impl Into<String>) {
         self.message = message.into();
     }
 
@@ -88,14 +74,8 @@ impl Spinner {
             .unwrap_or("⠋")
     }
 
-    /// Render the spinner widget to the frame
+    /// Render the spinner widget to the frame (content only, no block)
     pub fn render(&self, f: &mut Frame, area: Rect) {
-        let block = Block::default()
-            .title(self.style.title.as_str())
-            .title_alignment(ratatui::layout::Alignment::Center)
-            .borders(Borders::ALL)
-            .style(Style::default().fg(self.style.border_color));
-
         let spinner_text = format!("{} {}", self.get_spinner_char(), self.message);
         let mut style = Style::default().fg(self.style.fg_color);
         if let Some(bg_color) = self.style.bg_color {
@@ -103,7 +83,6 @@ impl Spinner {
         }
 
         let spinner_paragraph = Paragraph::new(spinner_text)
-            .block(block)
             .alignment(ratatui::layout::Alignment::Center)
             .style(style);
 
