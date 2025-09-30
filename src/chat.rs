@@ -7,30 +7,85 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Block, Borders, Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState},
 };
+use std::time::Duration;
+
+/// Sender type for messages
+#[derive(Clone, Debug, PartialEq)]
+pub enum Sender {
+    User,
+    Agent,
+    System,
+}
+
+impl Sender {
+    pub fn name(&self) -> &str {
+        match self {
+            Sender::User => "You",
+            Sender::Agent => "Agent",
+            Sender::System => "System",
+        }
+    }
+    
+    pub fn color(&self) -> Color {
+        match self {
+            Sender::User => Color::Green,
+            Sender::Agent => Color::Cyan,
+            Sender::System => Color::Yellow,
+        }
+    }
+}
+
+/// Message type
+#[derive(Clone, Debug)]
+pub enum MessageType {
+    Normal(String),
+    ThinkingInProgress(std::time::Instant), // Agent is currently thinking (stores start time)
+    ThinkingComplete(Duration), // Agent finished thinking (stores duration)
+}
 
 /// A single chat message
 #[derive(Clone, Debug)]
 pub struct Message {
-    pub sender: String,
-    pub content: String,
+    pub sender: Sender,
+    pub message_type: MessageType,
     pub timestamp: DateTime<Local>,
 }
 
 impl Message {
-    pub fn new(sender: impl Into<String>, content: impl Into<String>) -> Self {
+    pub fn new(sender: Sender, content: impl Into<String>) -> Self {
         Self {
-            sender: sender.into(),
-            content: content.into(),
+            sender,
+            message_type: MessageType::Normal(content.into()),
+            timestamp: Local::now(),
+        }
+    }
+    
+    pub fn thinking_in_progress() -> Self {
+        Self {
+            sender: Sender::Agent,
+            message_type: MessageType::ThinkingInProgress(std::time::Instant::now()),
+            timestamp: Local::now(),
+        }
+    }
+    
+    pub fn thinking_complete(duration: Duration) -> Self {
+        Self {
+            sender: Sender::Agent,
+            message_type: MessageType::ThinkingComplete(duration),
             timestamp: Local::now(),
         }
     }
 
     pub fn user(content: impl Into<String>) -> Self {
-        Self::new("You", content)
+        Self::new(Sender::User, content)
+    }
+    
+    pub fn agent(content: impl Into<String>) -> Self {
+        Self::new(Sender::Agent, content)
     }
 
     pub fn system(content: impl Into<String>) -> Self {
-        Self::new("System", content)
+        Self::new(Sender::System, content)
     }
 }
 
@@ -114,59 +169,114 @@ impl ReactiveChat {
             // Format timestamp
             let time_str = msg.timestamp.format("%H:%M:%S").to_string();
 
-            // Message header with sender and timestamp
-            let sender_color = if msg.sender == "You" {
-                Color::Green
-            } else if msg.sender == "System" {
-                Color::Yellow
-            } else {
-                Color::Blue
-            };
+            // Get sender info
+            let sender_name = msg.sender.name();
+            let sender_color = msg.sender.color();
 
-            // Message content - render as markdown
-            let markdown_text = tui_markdown::from_str(&msg.content);
+            // Handle different message types
+            match &msg.message_type {
+                MessageType::Normal(content) => {
+                    // Message content - render as markdown
+                    let markdown_text = tui_markdown::from_str(content);
 
-            // Check if this is a single-line message
-            if markdown_text.lines.len() == 1 {
-                // Single line: display inline with header
-                let mut header_spans = vec![
-                    Span::styled(
-                        format!("[{}] ", time_str),
-                        Style::default().fg(Color::DarkGray),
-                    ),
-                    Span::styled(
-                        &msg.sender,
-                        Style::default()
-                            .fg(sender_color)
-                            .add_modifier(Modifier::BOLD),
-                    ),
-                    Span::styled(": ", Style::default().fg(Color::White)),
-                ];
-                // Add the content to the same line
-                header_spans.extend(markdown_text.lines[0].spans.clone());
-                lines.push(Line::from(header_spans));
-            } else {
-                // Multi-line: display header then indented content
-                let header = Line::from(vec![
-                    Span::styled(
-                        format!("[{}] ", time_str),
-                        Style::default().fg(Color::DarkGray),
-                    ),
-                    Span::styled(
-                        &msg.sender,
-                        Style::default()
-                            .fg(sender_color)
-                            .add_modifier(Modifier::BOLD),
-                    ),
-                    Span::styled(":", Style::default().fg(Color::White)),
-                ]);
-                lines.push(header);
+                    // Check if this is a single-line message
+                    if markdown_text.lines.len() == 1 {
+                        // Single line: display inline with header
+                        let mut header_spans = vec![
+                            Span::styled(
+                                format!("[{}] ", time_str),
+                                Style::default().fg(Color::DarkGray),
+                            ),
+                            Span::styled(
+                                sender_name,
+                                Style::default()
+                                    .fg(sender_color)
+                                    .add_modifier(Modifier::BOLD),
+                            ),
+                            Span::styled(": ", Style::default().fg(Color::White)),
+                        ];
+                        // Add the content to the same line
+                        header_spans.extend(markdown_text.lines[0].spans.clone());
+                        lines.push(Line::from(header_spans));
+                    } else {
+                        // Multi-line: display header then indented content
+                        let header = Line::from(vec![
+                            Span::styled(
+                                format!("[{}] ", time_str),
+                                Style::default().fg(Color::DarkGray),
+                            ),
+                            Span::styled(
+                                sender_name,
+                                Style::default()
+                                    .fg(sender_color)
+                                    .add_modifier(Modifier::BOLD),
+                            ),
+                            Span::styled(":", Style::default().fg(Color::White)),
+                        ]);
+                        lines.push(header);
 
-                // Add indented content lines
-                for line in markdown_text.lines {
-                    let mut indented_spans = vec![Span::raw("  ")]; // Indent content
-                    indented_spans.extend(line.spans);
-                    lines.push(Line::from(indented_spans));
+                        // Add indented content lines
+                        for line in markdown_text.lines {
+                            let mut indented_spans = vec![Span::raw("  ")]; // Indent content
+                            indented_spans.extend(line.spans);
+                            lines.push(Line::from(indented_spans));
+                        }
+                    }
+                }
+                MessageType::ThinkingInProgress(start_time) => {
+                    // Display animated thinking message with elapsed time
+                    let elapsed = start_time.elapsed();
+                    let thinking_text = format!("💭 Thinking... ({:.1}s)", elapsed.as_secs_f64());
+                    
+                    let header_spans = vec![
+                        Span::styled(
+                            format!("[{}] ", time_str),
+                            Style::default().fg(Color::DarkGray),
+                        ),
+                        Span::styled(
+                            sender_name,
+                            Style::default()
+                                .fg(sender_color)
+                                .add_modifier(Modifier::BOLD),
+                        ),
+                        Span::styled(": ", Style::default().fg(Color::White)),
+                        Span::styled(
+                            thinking_text,
+                            Style::default()
+                                .fg(Color::Yellow)
+                                .add_modifier(Modifier::ITALIC),
+                        ),
+                    ];
+                    lines.push(Line::from(header_spans));
+                }
+                MessageType::ThinkingComplete(duration) => {
+                    // Display completed thinking message
+                    let thinking_text = if duration.as_secs() > 0 {
+                        format!("💭 Thought for {:.1}s", duration.as_secs_f64())
+                    } else {
+                        format!("💭 Thought for {}ms", duration.as_millis())
+                    };
+                    
+                    let header_spans = vec![
+                        Span::styled(
+                            format!("[{}] ", time_str),
+                            Style::default().fg(Color::DarkGray),
+                        ),
+                        Span::styled(
+                            sender_name,
+                            Style::default()
+                                .fg(sender_color)
+                                .add_modifier(Modifier::BOLD),
+                        ),
+                        Span::styled(": ", Style::default().fg(Color::White)),
+                        Span::styled(
+                            thinking_text,
+                            Style::default()
+                                .fg(Color::DarkGray)
+                                .add_modifier(Modifier::ITALIC),
+                        ),
+                    ];
+                    lines.push(Line::from(header_spans));
                 }
             }
         }
