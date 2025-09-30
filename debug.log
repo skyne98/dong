@@ -1,0 +1,822 @@
+   Compiling dong v0.1.0 (/home/fox/Project/dong)
+warning: field `validator` is never read
+  --> src/textbox.rs:25:9
+   |
+13 | pub struct ReactiveTextbox {
+   |            --------------- field in this struct
+...
+25 |     pub validator: Option<Box<dyn Fn(&Vec<String>) -> (bool, String) + 'static>>,
+   |         ^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: method `text` is never used
+  --> src/textbox.rs:76:12
+   |
+31 | impl ReactiveTextbox {
+   | -------------------- method in this implementation
+...
+76 |     pub fn text(&self) -> Vec<String> {
+   |            ^^^^
+
+warning: struct `Watcher` is never constructed
+   --> src/vue.rs:227:12
+    |
+227 | pub struct Watcher {
+    |            ^^^^^^^
+
+warning: method `stop` is never used
+   --> src/vue.rs:233:12
+    |
+231 | impl Watcher {
+    | ------------ method in this implementation
+232 |     /// Stops the watcher from running.
+233 |     pub fn stop(self) {
+    |            ^^^^
+
+warning: function `watch_effect` is never used
+   --> src/vue.rs:242:8
+    |
+242 | pub fn watch_effect(fn_box: impl Fn() + 'static) -> Watcher {
+    |        ^^^^^^^^^^^^
+
+warning: function `watch` is never used
+   --> src/vue.rs:249:8
+    |
+249 | pub fn watch<T: Clone + PartialEq + 'static>(
+    |        ^^^^^
+
+warning: trait `ReactiveState` is never used
+   --> src/vue.rs:272:11
+    |
+272 | pub trait ReactiveState {}
+    |           ^^^^^^^^^^^^^
+
+warning: struct `State` is never constructed
+   --> src/vue.rs:276:12
+    |
+276 | pub struct State {
+    |            ^^^^^
+
+warning: function `reactive` is never used
+   --> src/vue.rs:284:8
+    |
+284 | pub fn reactive<T: Default + ReactiveState>() -> T {
+    |        ^^^^^^^^
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> src/vue.rs:88:16
+   |
+88 |     pub fn get(&self) -> StdRef<T> {
+   |                ^^^^^     --------- the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+   = note: `#[warn(mismatched_lifetime_syntaxes)]` on by default
+help: use `'_` for type paths
+   |
+88 |     pub fn get(&self) -> StdRef<'_, T> {
+   |                                 +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> src/vue.rs:156:18
+    |
+156 |     pub fn value(&self) -> StdRef<T> {
+    |                  ^^^^^     --------- the same lifetime is hidden here
+    |                  |
+    |                  the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+156 |     pub fn value(&self) -> StdRef<'_, T> {
+    |                                   +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> src/vue.rs:195:18
+    |
+195 |     pub fn value(&self) -> StdRef<T> {
+    |                  ^^^^^     --------- the same lifetime is hidden here
+    |                  |
+    |                  the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+195 |     pub fn value(&self) -> StdRef<'_, T> {
+    |                                   +++
+
+warning: `dong` (bin "dong") generated 12 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.74s
+     Running `target/debug/dong`
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 3, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 65535, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 5, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 65535, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 7, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 65535, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
+total_lines: 9, available_height: 11, scroll_pos: 0, max_scroll: 0, scroll_offset: 0
