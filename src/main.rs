@@ -23,6 +23,7 @@ use tokio::task::JoinHandle;
 
 mod ai;
 mod chat;
+mod collapsible;
 mod textbox;
 mod vue;
 
@@ -121,6 +122,22 @@ impl ChatApp {
 
     fn scroll_chat_down(&self) {
         self.chat.scroll_down();
+    }
+
+    fn focus_next_thinking(&self) {
+        self.chat.focus_next_thinking();
+    }
+
+    fn focus_prev_thinking(&self) {
+        self.chat.focus_prev_thinking();
+    }
+
+    fn toggle_focused_thinking(&self) {
+        self.chat.toggle_focused_thinking();
+    }
+
+    fn has_focused_message(&self) -> bool {
+        self.chat.focused_message.value().is_some()
     }
 
     fn process_ai_events(&mut self) {
@@ -275,6 +292,20 @@ fn run_app<B: ratatui::backend::Backend>(
                         KeyCode::Down | KeyCode::Char('j') => app.scroll_chat_down(),
                         KeyCode::PageUp => app.scroll_chat_up(),
                         KeyCode::PageDown => app.scroll_chat_down(),
+
+                        // W/S: Navigate between thinking messages
+                        KeyCode::Char('w') | KeyCode::Char('W') => app.focus_prev_thinking(),
+                        KeyCode::Char('s') | KeyCode::Char('S') => app.focus_next_thinking(),
+
+                        // Space: Toggle expand/collapse of focused message
+                        KeyCode::Char(' ') => {
+                            if app.has_focused_message() {
+                                app.toggle_focused_thinking();
+                            } else {
+                                app.focus_textbox();
+                            }
+                        }
+
                         _ => app.focus_textbox(),
                     }
                 }
@@ -336,6 +367,8 @@ fn ui(f: &mut Frame, app: &ChatApp) {
         )]),
         Line::from(vec![Span::raw("  ↑/k - Scroll up")]),
         Line::from(vec![Span::raw("  ↓/j - Scroll down")]),
+        Line::from(vec![Span::raw("  w/s - Select msg")]),
+        Line::from(vec![Span::raw("  Space - Toggle")]),
         Line::from(vec![Span::raw("  PgUp/PgDn - Page")]),
         Line::from(vec![Span::raw("  Ctrl+C - Cancel AI")]),
         Line::from(vec![Span::raw("  ESC - Unfocus")]),
