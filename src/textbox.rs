@@ -13,6 +13,8 @@ use crate::vue::{Computed, Val, computed, val};
 pub struct ReactiveTextbox {
     /// The underlying tui-textarea widget
     textarea: TextArea<'static>,
+    /// Placeholder text
+    placeholder: String,
     /// The reactive text content (updated on every change)
     pub text: Val<Vec<String>>,
     /// Whether the textbox is focused
@@ -29,8 +31,9 @@ pub struct ReactiveTextbox {
 impl ReactiveTextbox {
     /// Create a new reactive textbox
     pub fn new(placeholder: impl Into<String>) -> Self {
+        let placeholder_str = placeholder.into();
         let mut textarea = TextArea::default();
-        textarea.set_placeholder_text(placeholder);
+        textarea.set_placeholder_text(&placeholder_str);
         textarea.set_block(Block::default().borders(Borders::ALL));
 
         let is_focused = val(false);
@@ -50,15 +53,16 @@ impl ReactiveTextbox {
             move || {
                 let lines = (*text.value()).clone();
                 if lines.is_empty() || (lines.len() == 1 && lines[0].is_empty()) {
-                    "Text cannot be empty".to_string()
+                    "Input is empty".to_string()
                 } else {
-                    "Valid".to_string()
+                    String::new()
                 }
             }
         });
 
         Self {
             textarea,
+            placeholder: placeholder_str,
             text,
             is_focused,
             on_submit: None,
@@ -142,14 +146,9 @@ impl ReactiveTextbox {
                     let lines = self.textarea.lines().to_vec();
                     callback(&lines);
 
-                    // Clear the textarea after submit for visual feedback
-                    while !self.textarea.lines().is_empty() {
-                        self.textarea.delete_line_by_head();
-                        self.textarea.move_cursor(tui_textarea::CursorMove::Head);
-                        if self.textarea.lines().len() == 1 && self.textarea.lines()[0].is_empty() {
-                            break;
-                        }
-                    }
+                    // Clear the textarea after submit - just recreate it
+                    self.textarea = TextArea::default();
+                    self.textarea.set_placeholder_text(&self.placeholder);
                     self.text.set(vec![String::new()]);
                 }
             }

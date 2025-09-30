@@ -15,182 +15,47 @@ use ratatui::{
     backend::CrosstermBackend,
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Style},
-    text::Span,
+    text::{Line, Span},
     widgets::{Block, Borders, Paragraph},
 };
 
-mod markdown;
-mod spinner;
+mod chat;
 mod textbox;
 mod vue;
 
-use crate::markdown::ReactiveMarkdown;
-use crate::spinner::ReactiveSpinner;
+use crate::chat::{Message, ReactiveChat};
 use crate::textbox::ReactiveTextbox;
-use crate::vue::{Computed, Val, computed, val};
 
-struct ReactiveApp {
-    // Reactive state
-    counter: Val<i32>,
-    message: Val<String>,
-    is_running: Val<bool>,
-    status_message: Val<String>,
+struct ChatApp {
+    // Chat window with messages
+    chat: ReactiveChat,
 
-    // Computed values
-    doubled_counter: Computed<i32>,
-    spinner_message: Computed<String>,
-
-    // Reactive textbox
+    // Input textbox
     textbox: Rc<RefCell<ReactiveTextbox>>,
-
-    // Reactive spinner
-    spinner: ReactiveSpinner,
-
-    // Reactive markdown
-    markdown: ReactiveMarkdown,
-
-    frame_count: u8,
 }
 
-impl ReactiveApp {
+impl ChatApp {
     fn new() -> Self {
-        let counter = val(0);
-        let message = val("Hello Reactive World!".to_string());
-        let is_running = val(true);
+        let chat = ReactiveChat::new();
 
-        // Create computed values
-        let doubled_counter = computed({
-            let counter = counter.clone();
-            move || *counter.value() * 2
-        });
-
-        let status_message = val("Running - Counter: 0".to_string());
-
-        // Create reactive textbox
+        // Create reactive textbox for message input
+        let chat_clone = chat.clone();
         let textbox = Rc::new(RefCell::new(
-            ReactiveTextbox::new("Type something here...")
-                .with_validator(|text: &Vec<String>| {
-                    // Check if text contains at least one number
-                    let has_number = text.iter().any(|line| line.chars().any(|c| c.is_numeric()));
-
-                    if !has_number {
-                        (false, "Must contain at least one number".to_string())
-                    } else {
-                        (true, "Valid".to_string())
-                    }
+            ReactiveTextbox::new("Type your message...")
+                .with_validator(|_text: &Vec<String>| {
+                    // Chat messages always valid - no restrictions
+                    (true, String::new())
                 })
-                .on_submit({
-                    let status_message = status_message.clone();
-                    let counter = counter.clone();
-                    move |text: &Vec<String>| {
-                        let line_count = text.len();
-                        let total_chars: usize = text.iter().map(|s| s.len()).sum();
-                        status_message.set(format!(
-                            "✓ Submitted: {} lines, {} chars",
-                            line_count, total_chars
-                        ));
-
-                        // Double the counter as visual feedback
-                        let current = *counter.value();
-                        counter.set(current * 2);
+                .on_submit(move |text: &Vec<String>| {
+                    let message_content = text.join("\n");
+                    if !message_content.trim().is_empty() {
+                        // Add user message to chat
+                        chat_clone.add_message(Message::user(message_content));
                     }
                 }),
         ));
 
-        // Create spinner message that reacts to textbox content
-        let spinner_message = computed({
-            let textbox_text = textbox.borrow().text.clone();
-            move || {
-                let text = (*textbox_text.value()).clone();
-                if text.is_empty() || (text.len() == 1 && text[0].is_empty()) {
-                    "Waiting for input...".to_string()
-                } else {
-                    format!("Text: \"{}\"", text.join("\n"))
-                }
-            }
-        });
-
-        // Create reactive spinner
-        let spinner = ReactiveSpinner::new(spinner_message.clone());
-
-        // Create computed markdown that shows textbox content
-        let textbox_clone = textbox.clone();
-        let markdown_computed = computed({
-            let textbox_text = textbox_clone.borrow().text.clone();
-            move || {
-                let text = (*textbox_text.value()).clone();
-                if text.is_empty() || (text.len() == 1 && text[0].is_empty()) {
-                    "# No Input Yet\n\nType something in the textbox above!\n\n## Features\n- **Real-time** markdown rendering\n- Supports all markdown syntax\n- Updates automatically".to_string()
-                } else {
-                    text.join("\n")
-                }
-            }
-        });
-
-        let markdown = ReactiveMarkdown::new(markdown_computed);
-
-        Self {
-            counter,
-            message,
-            is_running,
-            doubled_counter,
-            status_message,
-            spinner_message,
-            textbox,
-            spinner,
-            markdown,
-            frame_count: 0,
-        }
-    }
-
-    fn update(&mut self) {
-        self.spinner.update();
-
-        // Update reactive state
-        self.frame_count += 1;
-        if self.frame_count >= 5 && *self.is_running.value() {
-            // Increase counter every 5 frames when running
-            let current_count = *self.counter.value();
-            self.counter.set(current_count + 1);
-            self.frame_count = 0;
-        }
-
-        // Update status message
-        let counter_value = *self.counter.value();
-        let status = if *self.is_running.value() {
-            format!("Running - Counter: {}", counter_value)
-        } else {
-            format!("Paused - Counter: {}", counter_value)
-        };
-        self.status_message.set(status);
-    }
-
-    fn toggle_running(&mut self) {
-        let current_running = *self.is_running.value();
-        self.is_running.set(!current_running);
-
-        // Update status message immediately
-        let counter_value = *self.counter.value();
-        let status = if !current_running {
-            format!("Running - Counter: {}", counter_value)
-        } else {
-            format!("Paused - Counter: {}", counter_value)
-        };
-        self.status_message.set(status);
-    }
-
-    fn increment_counter(&mut self) {
-        let current_count = *self.counter.value();
-        self.counter.set(current_count + 1);
-    }
-
-    fn decrement_counter(&mut self) {
-        let current_count = *self.counter.value();
-        self.counter.set(current_count - 1);
-    }
-
-    fn update_message(&mut self, new_message: String) {
-        self.message.set(new_message);
+        Self { chat, textbox }
     }
 
     fn focus_textbox(&mut self) {
@@ -204,6 +69,18 @@ impl ReactiveApp {
     fn handle_textbox_key(&mut self, key: ratatui::crossterm::event::KeyEvent) {
         self.textbox.borrow_mut().handle_key(key);
     }
+
+    fn is_textbox_focused(&self) -> bool {
+        *self.textbox.borrow().is_focused.value()
+    }
+
+    fn scroll_chat_up(&self) {
+        self.chat.scroll_up();
+    }
+
+    fn scroll_chat_down(&self) {
+        self.chat.scroll_down();
+    }
 }
 
 fn main() -> Result<()> {
@@ -214,8 +91,11 @@ fn main() -> Result<()> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    // Create reactive app state
-    let mut app = ReactiveApp::new();
+    // Create chat app
+    let mut app = ChatApp::new();
+
+    // Auto-focus the textbox
+    app.focus_textbox();
 
     // Run the app
     let res = run_app(&mut terminal, &mut app);
@@ -238,36 +118,31 @@ fn main() -> Result<()> {
 
 fn run_app<B: ratatui::backend::Backend>(
     terminal: &mut Terminal<B>,
-    app: &mut ReactiveApp,
+    app: &mut ChatApp,
 ) -> io::Result<()> {
     loop {
-        // Update reactive app state
-        app.update();
-
         terminal.draw(|f| ui(f, app))?;
 
-        // Poll for events with a short timeout to keep the spinner animating
+        // Poll for events with a short timeout
         if poll(Duration::from_millis(50))? {
             if let Event::Key(key) = event::read()? {
                 // Handle textbox input if focused
-                if *app.textbox.borrow().is_focused.value() {
+                if app.is_textbox_focused() {
                     match key.code {
                         KeyCode::Esc => app.unfocus_textbox(),
+                        KeyCode::PageUp => app.scroll_chat_up(),
+                        KeyCode::PageDown => app.scroll_chat_down(),
                         _ => app.handle_textbox_key(key),
                     }
                 } else {
                     // Handle global controls
                     match key.code {
                         KeyCode::Char('q') => return Ok(()),
-                        KeyCode::Char(' ') => app.toggle_running(),
-                        KeyCode::Char('+') | KeyCode::Up => app.increment_counter(),
-                        KeyCode::Char('-') | KeyCode::Down => app.decrement_counter(),
-                        KeyCode::Char('m') => {
-                            let new_msg = format!("Message at {}", *app.counter.value());
-                            app.update_message(new_msg);
-                        }
-                        KeyCode::Char('t') => app.focus_textbox(),
-                        _ => {}
+                        KeyCode::Up | KeyCode::Char('k') => app.scroll_chat_up(),
+                        KeyCode::Down | KeyCode::Char('j') => app.scroll_chat_down(),
+                        KeyCode::PageUp => app.scroll_chat_up(),
+                        KeyCode::PageDown => app.scroll_chat_down(),
+                        _ => app.focus_textbox(),
                     }
                 }
             }
@@ -275,131 +150,74 @@ fn run_app<B: ratatui::backend::Backend>(
     }
 }
 
-fn ui(f: &mut Frame, app: &ReactiveApp) {
+fn ui(f: &mut Frame, app: &ChatApp) {
     let size = f.area();
 
-    // Cache reactive values to avoid borrowing conflicts during rendering
-    let counter_value = *app.counter.value();
-    let doubled_value = *app.doubled_counter.value();
-    let message_value = app.message.value().clone();
-    let status_message_value = app.status_message.value().clone();
-    let is_running_value = *app.is_running.value();
+    // Calculate dynamic textbox height based on content (min 3 lines, max 30% of screen)
+    let textbox_lines = app.textbox.borrow().text.value().len().max(1);
+    let textbox_height = (textbox_lines + 2)
+        .min(size.height as usize * 30 / 100)
+        .max(3); // +2 for borders
 
-    // Create a layout with reactive data display, controls, textbox, markdown, spinner, and status
-    let chunks = Layout::default()
+    // Create vertical layout: chat area on top, input on bottom
+    let vertical_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Percentage(12), // Reactive data display
-            Constraint::Percentage(18), // Controls
-            Constraint::Percentage(20), // Textbox
-            Constraint::Percentage(30), // Markdown preview
-            Constraint::Percentage(10), // Spinner
-            Constraint::Percentage(10), // Status
+            Constraint::Min(0),                        // Chat area (takes remaining space)
+            Constraint::Length(textbox_height as u16), // Input textbox (dynamic)
         ])
         .split(size);
 
-    // Reactive data display
-    let reactive_block = Block::default()
-        .title(" Reactive Data ")
-        .title_alignment(Alignment::Center)
-        .borders(Borders::ALL)
-        .style(Style::default().fg(Color::Cyan));
+    // Create horizontal layout for the chat area: chat on left, stats on right
+    let horizontal_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage(75), // Chat messages (75%)
+            Constraint::Percentage(25), // Stats panel (25%)
+        ])
+        .split(vertical_chunks[0]);
 
-    let reactive_text = ratatui::text::Text::from(vec![
-        ratatui::text::Line::from(vec![
-            Span::styled("Counter: ", Style::default().fg(Color::White)),
+    // Render chat window
+    app.chat.render(f, horizontal_chunks[0]);
+
+    // Render stats panel
+    let message_count = app.chat.messages.value().len();
+    let stats_block = Block::default()
+        .title(" Stats ")
+        .title_alignment(Alignment::Left)
+        .borders(Borders::ALL)
+        .style(Style::default().fg(Color::Magenta));
+
+    let stats_text = vec![
+        Line::from(vec![
+            Span::styled("Messages: ", Style::default().fg(Color::White)),
             Span::styled(
-                format!("{}", counter_value),
+                format!("{}", message_count),
                 Style::default().fg(Color::Green),
             ),
         ]),
-        ratatui::text::Line::from(vec![
-            Span::styled("Doubled: ", Style::default().fg(Color::White)),
-            Span::styled(
-                format!("{}", doubled_value),
-                Style::default().fg(Color::Yellow),
-            ),
-        ]),
-        ratatui::text::Line::from(vec![
-            Span::styled("Message: ", Style::default().fg(Color::White)),
-            Span::styled(message_value, Style::default().fg(Color::Magenta)),
-        ]),
-    ]);
+        Line::from(""),
+        Line::from(vec![Span::styled(
+            "Controls:",
+            Style::default().fg(Color::Yellow),
+        )]),
+        Line::from(vec![Span::raw("  ↑/k - Scroll up")]),
+        Line::from(vec![Span::raw("  ↓/j - Scroll down")]),
+        Line::from(vec![Span::raw("  PgUp/PgDn - Page")]),
+        Line::from(vec![Span::raw("  ESC - Unfocus")]),
+        Line::from(vec![Span::raw("  q - Quit")]),
+    ];
 
-    let reactive_paragraph = Paragraph::new(reactive_text)
-        .block(reactive_block)
+    let stats_paragraph = Paragraph::new(stats_text)
+        .block(stats_block)
         .alignment(Alignment::Left);
 
-    f.render_widget(reactive_paragraph, chunks[0]);
+    f.render_widget(stats_paragraph, horizontal_chunks[1]);
 
-    // Controls
-    let controls_block = Block::default()
-        .title(" Controls ")
-        .title_alignment(Alignment::Center)
-        .borders(Borders::ALL)
-        .style(Style::default().fg(Color::Yellow));
-
-    let controls_text = ratatui::text::Text::from(vec![
-        ratatui::text::Line::from(vec![Span::styled(
-            "SPACE: Toggle running/paused | +/↑: Inc counter | -/↓: Dec counter | m: Update msg | t: Focus textbox",
-            Style::default().fg(Color::White),
-        )]),
-        ratatui::text::Line::from(vec![Span::styled(
-            "Textbox: Enter for newlines | Ctrl+D to submit | ESC to unfocus",
-            Style::default().fg(Color::Cyan),
-        )]),
-        ratatui::text::Line::from(vec![Span::styled(
-            "Markdown renders textbox content in real-time!",
-            Style::default().fg(Color::Magenta),
-        )]),
-    ]);
-
-    let controls_paragraph = Paragraph::new(controls_text)
-        .block(controls_block)
-        .alignment(Alignment::Left);
-
-    f.render_widget(controls_paragraph, chunks[1]);
-
-    // Textbox
+    // Render input textbox
     app.textbox.borrow().render(
         f,
-        chunks[2],
-        "Reactive Textbox (Enter=newline, Ctrl+D=submit, ESC=unfocus)",
+        vertical_chunks[1],
+        "Message Input (Enter=newline, Ctrl+D=send, ESC=unfocus, q=quit when unfocused)",
     );
-
-    // Markdown preview
-    app.markdown
-        .render(f, chunks[3], "Markdown Preview (Real-time)");
-
-    // Spinner
-    app.spinner.render(f, chunks[4]);
-
-    // Status
-    let status_block = Block::default()
-        .title(" Status ")
-        .title_alignment(Alignment::Center)
-        .borders(Borders::ALL)
-        .style(Style::default().fg(Color::Green));
-
-    let status_color = if is_running_value {
-        Color::Green
-    } else {
-        Color::Red
-    };
-    let status_text = ratatui::text::Text::from(vec![
-        ratatui::text::Line::from(vec![Span::styled(
-            status_message_value,
-            Style::default().fg(status_color),
-        )]),
-        ratatui::text::Line::from(vec![Span::styled(
-            "Reactive Ratatui Demo - Vue 3-like reactivity + Markdown!",
-            Style::default().fg(Color::Blue),
-        )]),
-    ]);
-
-    let status_paragraph = Paragraph::new(status_text)
-        .block(status_block)
-        .alignment(Alignment::Center);
-
-    f.render_widget(status_paragraph, chunks[4]);
 }
