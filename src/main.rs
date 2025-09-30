@@ -19,13 +19,15 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
+mod markdown;
 mod spinner;
 mod textbox;
 mod vue;
 
-use spinner::ReactiveSpinner;
-use textbox::ReactiveTextbox;
-use vue::{Computed, Val, computed, val};
+use crate::markdown::ReactiveMarkdown;
+use crate::spinner::ReactiveSpinner;
+use crate::textbox::ReactiveTextbox;
+use crate::vue::{Computed, Val, computed, val};
 
 struct ReactiveApp {
     // Reactive state
@@ -43,6 +45,10 @@ struct ReactiveApp {
 
     // Reactive spinner
     spinner: ReactiveSpinner,
+
+    // Reactive markdown
+    markdown: ReactiveMarkdown,
+
     frame_count: u8,
 }
 
@@ -62,22 +68,33 @@ impl ReactiveApp {
 
         // Create reactive textbox
         let textbox = Rc::new(RefCell::new(
-            ReactiveTextbox::new("Type something here...").on_submit({
-                let status_message = status_message.clone();
-                let counter = counter.clone();
-                move |text: &Vec<String>| {
-                    let line_count = text.len();
-                    let total_chars: usize = text.iter().map(|s| s.len()).sum();
-                    status_message.set(format!(
-                        "✓ Submitted: {} lines, {} chars",
-                        line_count, total_chars
-                    ));
+            ReactiveTextbox::new("Type something here...")
+                .with_validator(|text: &Vec<String>| {
+                    // Check if text contains at least one number
+                    let has_number = text.iter().any(|line| line.chars().any(|c| c.is_numeric()));
 
-                    // Double the counter as visual feedback
-                    let current = *counter.value();
-                    counter.set(current * 2);
-                }
-            }),
+                    if !has_number {
+                        (false, "Must contain at least one number".to_string())
+                    } else {
+                        (true, "Valid".to_string())
+                    }
+                })
+                .on_submit({
+                    let status_message = status_message.clone();
+                    let counter = counter.clone();
+                    move |text: &Vec<String>| {
+                        let line_count = text.len();
+                        let total_chars: usize = text.iter().map(|s| s.len()).sum();
+                        status_message.set(format!(
+                            "✓ Submitted: {} lines, {} chars",
+                            line_count, total_chars
+                        ));
+
+                        // Double the counter as visual feedback
+                        let current = *counter.value();
+                        counter.set(current * 2);
+                    }
+                }),
         ));
 
         // Create spinner message that reacts to textbox content
@@ -96,6 +113,22 @@ impl ReactiveApp {
         // Create reactive spinner
         let spinner = ReactiveSpinner::new(spinner_message.clone());
 
+        // Create computed markdown that shows textbox content
+        let textbox_clone = textbox.clone();
+        let markdown_computed = computed({
+            let textbox_text = textbox_clone.borrow().text.clone();
+            move || {
+                let text = (*textbox_text.value()).clone();
+                if text.is_empty() || (text.len() == 1 && text[0].is_empty()) {
+                    "# No Input Yet\n\nType something in the textbox above!\n\n## Features\n- **Real-time** markdown rendering\n- Supports all markdown syntax\n- Updates automatically".to_string()
+                } else {
+                    text.join("\n")
+                }
+            }
+        });
+
+        let markdown = ReactiveMarkdown::new(markdown_computed);
+
         Self {
             counter,
             message,
@@ -105,6 +138,7 @@ impl ReactiveApp {
             spinner_message,
             textbox,
             spinner,
+            markdown,
             frame_count: 0,
         }
     }
@@ -251,21 +285,22 @@ fn ui(f: &mut Frame, app: &ReactiveApp) {
     let status_message_value = app.status_message.value().clone();
     let is_running_value = *app.is_running.value();
 
-    // Create a layout with reactive data display, controls, textbox, and status
+    // Create a layout with reactive data display, controls, textbox, markdown, spinner, and status
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Percentage(15), // Reactive data display
-            Constraint::Percentage(25), // Controls
-            Constraint::Percentage(25), // Textbox (increased)
-            Constraint::Percentage(15), // Spinner
-            Constraint::Percentage(20), // Status
+            Constraint::Percentage(12), // Reactive data display
+            Constraint::Percentage(18), // Controls
+            Constraint::Percentage(20), // Textbox
+            Constraint::Percentage(30), // Markdown preview
+            Constraint::Percentage(10), // Spinner
+            Constraint::Percentage(10), // Status
         ])
         .split(size);
 
     // Reactive data display
     let reactive_block = Block::default()
-        .title("Reactive Data")
+        .title(" Reactive Data ")
         .title_alignment(Alignment::Center)
         .borders(Borders::ALL)
         .style(Style::default().fg(Color::Cyan));
@@ -299,7 +334,7 @@ fn ui(f: &mut Frame, app: &ReactiveApp) {
 
     // Controls
     let controls_block = Block::default()
-        .title("Controls")
+        .title(" Controls ")
         .title_alignment(Alignment::Center)
         .borders(Borders::ALL)
         .style(Style::default().fg(Color::Yellow));
@@ -314,7 +349,7 @@ fn ui(f: &mut Frame, app: &ReactiveApp) {
             Style::default().fg(Color::Cyan),
         )]),
         ratatui::text::Line::from(vec![Span::styled(
-            "Spinner shows textbox content dynamically!",
+            "Markdown renders textbox content in real-time!",
             Style::default().fg(Color::Magenta),
         )]),
     ]);
@@ -332,12 +367,16 @@ fn ui(f: &mut Frame, app: &ReactiveApp) {
         "Reactive Textbox (Enter=newline, Ctrl+D=submit, ESC=unfocus)",
     );
 
+    // Markdown preview
+    app.markdown
+        .render(f, chunks[3], "Markdown Preview (Real-time)");
+
     // Spinner
-    app.spinner.render(f, chunks[3]);
+    app.spinner.render(f, chunks[4]);
 
     // Status
     let status_block = Block::default()
-        .title("Status")
+        .title(" Status ")
         .title_alignment(Alignment::Center)
         .borders(Borders::ALL)
         .style(Style::default().fg(Color::Green));
@@ -352,9 +391,8 @@ fn ui(f: &mut Frame, app: &ReactiveApp) {
             status_message_value,
             Style::default().fg(status_color),
         )]),
-        ratatui::text::Line::from(""),
         ratatui::text::Line::from(vec![Span::styled(
-            "Reactive Ratatui Demo - Vue 3-like reactivity in Rust!",
+            "Reactive Ratatui Demo - Vue 3-like reactivity + Markdown!",
             Style::default().fg(Color::Blue),
         )]),
     ]);

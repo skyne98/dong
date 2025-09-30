@@ -2,11 +2,12 @@ use ratatui::crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use ratatui::{
     Frame,
     layout::Rect,
+    style::{Color, Style},
     widgets::{Block, Borders},
 };
 use tui_textarea::{Input, TextArea};
 
-use crate::vue::{Val, val};
+use crate::vue::{Computed, Val, computed, val};
 
 /// A reactive textbox component that wraps tui-textarea and integrates with the Vue-like reactivity system
 pub struct ReactiveTextbox {
@@ -18,6 +19,11 @@ pub struct ReactiveTextbox {
     pub is_focused: Val<bool>,
     /// Submit callback
     pub on_submit: Option<Box<dyn Fn(&Vec<String>) + 'static>>,
+    /// Validation function
+    pub validator: Option<Box<dyn Fn(&Vec<String>) -> (bool, String) + 'static>>,
+    /// Reactive validation state (is_valid, error_message)
+    pub is_valid: Computed<bool>,
+    pub validation_message: Computed<String>,
 }
 
 impl ReactiveTextbox {
@@ -30,11 +36,35 @@ impl ReactiveTextbox {
         let is_focused = val(false);
         let text = val(vec![String::new()]);
 
+        // Create computed validation state
+        let is_valid = computed({
+            let text = text.clone();
+            move || {
+                let lines = (*text.value()).clone();
+                !lines.is_empty() && !(lines.len() == 1 && lines[0].is_empty())
+            }
+        });
+
+        let validation_message = computed({
+            let text = text.clone();
+            move || {
+                let lines = (*text.value()).clone();
+                if lines.is_empty() || (lines.len() == 1 && lines[0].is_empty()) {
+                    "Text cannot be empty".to_string()
+                } else {
+                    "Valid".to_string()
+                }
+            }
+        });
+
         Self {
             textarea,
             text,
             is_focused,
             on_submit: None,
+            validator: None,
+            is_valid,
+            validation_message,
         }
     }
 
@@ -49,6 +79,42 @@ impl ReactiveTextbox {
         F: Fn(&Vec<String>) + 'static,
     {
         self.on_submit = Some(Box::new(callback));
+        self
+    }
+
+    /// Set a custom validator and rebuild validation computed values
+    pub fn with_validator<F>(mut self, validator: F) -> Self
+    where
+        F: Fn(&Vec<String>) -> (bool, String) + 'static,
+    {
+        let text = self.text.clone();
+        let validator_box = Box::new(validator);
+        let validator_rc = std::rc::Rc::new(validator_box);
+
+        // Rebuild is_valid with custom validator
+        self.is_valid = computed({
+            let text = text.clone();
+            let validator = validator_rc.clone();
+            move || {
+                let lines = (*text.value()).clone();
+                let (is_valid, _) = validator(&lines);
+                is_valid
+            }
+        });
+
+        // Rebuild validation_message with custom validator
+        self.validation_message = computed({
+            let text = text.clone();
+            let validator = validator_rc.clone();
+            move || {
+                let lines = (*text.value()).clone();
+                let (_, message) = validator(&lines);
+                message
+            }
+        });
+
+        // We can't store the Rc-wrapped validator in the Option field, so we leave it as None
+        // The actual validation logic is now in the computed properties
         self
     }
 
@@ -70,20 +136,24 @@ impl ReactiveTextbox {
 
         // Check for submit with Ctrl+D
         if key.code == KeyCode::Char('d') && key.modifiers.contains(KeyModifiers::CONTROL) {
-            if let Some(ref callback) = self.on_submit {
-                let lines = self.textarea.lines().to_vec();
-                callback(&lines);
+            // Only submit if validation passes
+            if *self.is_valid.value() {
+                if let Some(ref callback) = self.on_submit {
+                    let lines = self.textarea.lines().to_vec();
+                    callback(&lines);
 
-                // Clear the textarea after submit for visual feedback
-                while !self.textarea.lines().is_empty() {
-                    self.textarea.delete_line_by_head();
-                    self.textarea.move_cursor(tui_textarea::CursorMove::Head);
-                    if self.textarea.lines().len() == 1 && self.textarea.lines()[0].is_empty() {
-                        break;
+                    // Clear the textarea after submit for visual feedback
+                    while !self.textarea.lines().is_empty() {
+                        self.textarea.delete_line_by_head();
+                        self.textarea.move_cursor(tui_textarea::CursorMove::Head);
+                        if self.textarea.lines().len() == 1 && self.textarea.lines()[0].is_empty() {
+                            break;
+                        }
                     }
+                    self.text.set(vec![String::new()]);
                 }
-                self.text.set(vec![String::new()]);
             }
+            // If validation fails, do nothing (validation error is shown in the title)
             return;
         }
 
@@ -99,17 +169,35 @@ impl ReactiveTextbox {
     /// Render the textbox
     pub fn render(&self, f: &mut Frame, area: Rect, title: &str) {
         let is_focused = *self.is_focused.value();
+        let is_valid = *self.is_valid.value();
+        let validation_msg = self.validation_message.value().clone();
+
+        // Choose border color based on validation state and focus
+        let border_color = if !is_valid {
+            if is_focused {
+                Color::Red // Focused and invalid - bright red
+            } else {
+                Color::DarkGray // Unfocused and invalid - dark gray to show "inactive but still wrong"
+            }
+        } else if is_focused {
+            Color::Yellow // Focused and valid
+        } else {
+            Color::White // Unfocused and valid
+        };
+
+        // Create title with validation message if invalid (show in both focused and unfocused states)
+        let display_title = if !is_valid {
+            format!(" {} - {} ", title, validation_msg)
+        } else {
+            format!(" {} ", title)
+        };
 
         // Create block with appropriate style
         let block = Block::default()
-            .title(title)
+            .title(display_title)
             .title_alignment(ratatui::layout::Alignment::Left)
             .borders(Borders::ALL)
-            .style(if is_focused {
-                ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)
-            } else {
-                ratatui::style::Style::default().fg(ratatui::style::Color::White)
-            });
+            .style(Style::default().fg(border_color));
 
         // Clone the textarea and set the block on the clone
         let mut textarea_with_block = self.textarea.clone();

@@ -11,7 +11,6 @@ use std::{
 // CORE REACTIVITY ENGINE
 // ===================================================================================
 
-/// A thread-local stack to keep track of the currently running Effect.
 thread_local! {
     static ACTIVE_EFFECT: RefCell<Option<Rc<Effect>>> = const { RefCell::new(None) };
 }
@@ -240,7 +239,7 @@ impl Watcher {
 
 /// Runs a function immediately, and re-runs it whenever any reactive dependency
 /// inside it changes.
-pub fn watchEffect(fn_box: impl Fn() + 'static) -> Watcher {
+pub fn watch_effect(fn_box: impl Fn() + 'static) -> Watcher {
     let effect = Effect::new(Box::new(fn_box));
     run_effect(effect.clone());
     Watcher { _effect: effect }
@@ -298,7 +297,7 @@ mod tests {
     fn test_val_and_watch_effect() {
         println!("--- Testing `val` and `watchEffect` ---");
         let count = val(0);
-        let watcher = watchEffect({
+        let watcher = watch_effect({
             let count = count.clone();
             move || {
                 println!("   Effect: The count is now: {}", *count.value());
@@ -324,7 +323,7 @@ mod tests {
         });
         assert_eq!(*doubled.value(), 10);
 
-        let _watcher = watchEffect({
+        let _watcher = watch_effect({
             let doubled = doubled.clone();
             move || {
                 println!("   Effect: The doubled value is now: {}", *doubled.value());
@@ -361,7 +360,7 @@ mod tests {
         let state = reactive::<State>();
         // Clone the state to move it into the 'static closure.
         let state_clone = state.clone();
-        let _watcher = watchEffect(move || {
+        let _watcher = watch_effect(move || {
             println!(
                 "   Effect: State changed -> count: {}, name: {}",
                 *state_clone.count.value(),
@@ -385,7 +384,7 @@ mod tests {
 
         let effect_ran = Rc::new(RefCell::new(Vec::new()));
 
-        let _watcher = watchEffect({
+        let _watcher = watch_effect({
             let condition = condition.clone();
             let source_a = source_a.clone();
             let source_b = source_b.clone();
@@ -447,7 +446,7 @@ mod tests {
 
         let effect_ran = Rc::new(RefCell::new(Vec::new()));
 
-        let _watcher = watchEffect({
+        let _watcher = watch_effect({
             let switch = switch.clone();
             let source_a = source_a.clone();
             let source_b = source_b.clone();
@@ -506,7 +505,7 @@ mod tests {
 
         assert_eq!(*full_name.value(), "John Doe");
 
-        let _watcher = watchEffect({
+        let _watcher = watch_effect({
             let full_name = full_name.clone();
             move || {
                 println!("   Effect: Full name is now: {}", *full_name.value());
@@ -530,7 +529,7 @@ mod tests {
         let log = Rc::new(RefCell::new(Vec::new()));
 
         // Create outer effect that depends on outer_count
-        let _outer_watcher = watchEffect({
+        let _outer_watcher = watch_effect({
             let outer_count = outer_count.clone();
             let log = Rc::clone(&log);
             move || {
@@ -540,7 +539,7 @@ mod tests {
         });
 
         // Create inner effect that depends on inner_count
-        let _inner_watcher = watchEffect({
+        let _inner_watcher = watch_effect({
             let inner_count = inner_count.clone();
             let log = Rc::clone(&log);
             move || {
@@ -649,7 +648,7 @@ mod tests {
 
         assert_eq!(*display_name.value(), " (has run 0 times)");
 
-        let _watcher = watchEffect({
+        let _watcher = watch_effect({
             let display_name = display_name.clone();
             move || {
                 println!("   Effect: Display name is now: {}", *display_name.value());
@@ -680,7 +679,7 @@ mod tests {
         let b_clone = b.clone();
         let a_clone_for_b = a_clone.clone();
         let b_clone_for_a = b_clone.clone();
-        let _watcher_a = watchEffect({
+        let _watcher_a = watch_effect({
             let b = b_clone.clone();
             move || {
                 println!("   Effect A running");
@@ -691,7 +690,7 @@ mod tests {
             }
         });
 
-        let _watcher_b = watchEffect({
+        let _watcher_b = watch_effect({
             let a = a_clone_for_b.clone();
             move || {
                 println!("   Effect B running");
@@ -717,7 +716,7 @@ mod tests {
         let effect_ran = Rc::new(RefCell::new(Vec::new()));
 
         // Start with source_a
-        let _watcher = watchEffect({
+        let _watcher = watch_effect({
             let source_a = source_a.clone();
             let effect_ran = Rc::clone(&effect_ran);
             move || {
@@ -740,7 +739,7 @@ mod tests {
         // Stop the watcher and create a new one for source_b
         drop(_watcher);
 
-        let _watcher2 = watchEffect({
+        let _watcher2 = watch_effect({
             let source_b = source_b.clone();
             let effect_ran = Rc::clone(&effect_ran);
             move || {
