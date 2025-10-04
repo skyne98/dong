@@ -257,7 +257,7 @@ impl DemoApp {
     fn handle_event(&mut self, event: Event) -> bool {
         match event {
             Event::Key(key) => match key.code {
-                KeyCode::Esc => return false, // Exit
+                KeyCode::Esc => return false, // Exit (only way to quit)
                 KeyCode::Tab => {
                     // Focus next
                 }
@@ -302,9 +302,6 @@ async fn main() -> Result<()> {
         // Handle events
         if event::poll(std::time::Duration::from_millis(16))? {
             if let Event::Key(key) = event::read()? {
-                if key.code == KeyCode::Char('q') && key.modifiers.is_empty() {
-                    break;
-                }
                 if !app.handle_event(Event::Key(key)) {
                     break;
                 }
