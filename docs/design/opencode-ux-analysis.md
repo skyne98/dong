@@ -478,14 +478,14 @@ Down Arrow / Ctrl+N  → Next message in history
 
 ### Modal Dialogs
 
-#### Help Dialog (`?` or `/help`)
+#### Help Dialog (`?` or `ctrl+?`)
 
 ```
 ╭─ Keybindings ───────────────────────────────────────╮
 │ General                                             │
-│   ?            show this help                       │
+│   ctrl+?       show this help                       │
 │   enter        send message                         │
-│   esc esc      quit application                     │
+│   ctrl+c       quit application                     │
 │                                                      │
 │ Navigation                                          │
 │   ctrl+u       page up                              │
@@ -495,28 +495,28 @@ Down Arrow / Ctrl+N  → Next message in history
 │                                                      │
 │ Session                                             │
 │   ctrl+n       new session                          │
-│   ctrl+l       list sessions                        │
-│   space t      view timeline                        │
+│   ctrl+s       switch session                       │
+│   ctrl+k       commands                             │
 │                                                      │
 │ [press esc to close]                                │
 ╰──────────────────────────────────────────────────────╯
 ```
 
-#### Session List (`ctrl+l` or `/sessions`)
+#### Session List (`ctrl+s`)
 
 ```
-╭─ Sessions ──────────────────────────────────────────╮
+╭─ Switch Session ────────────────────────────────────╮
 │                                                      │
-│ ▸ Debug authentication bug         2 hours ago      │
-│   Implement user dashboard         yesterday        │
-│   Fix database migration            3 days ago      │
-│   Add payment integration          last week        │
+│ ▸ Debug authentication bug                          │
+│   Implement user dashboard                          │
+│   Fix database migration                            │
+│   Add payment integration                           │
 │                                                      │
-│ [↑/↓ navigate, enter select, n new, r rename]      │
+│ [↑/↓/j/k navigate, enter select, esc close]        │
 ╰──────────────────────────────────────────────────────╯
 ```
 
-#### Model Selection (`/models`)
+#### Model Selection (`ctrl+o`)
 
 ```
 ╭─ Select Model ──────────────────────────────────────╮
@@ -569,64 +569,36 @@ Before: /share to create a shareable link
 After:  https://opencode.ai/s/abc123    /unshare
 ```
 
-### Timeline Navigation (`space t`)
+### Session Compacting
+
+OpenCode automatically manages context window usage:
+
+**Auto-Compact Trigger:**
+
+- Activates when tokens reach 95% of context window
+- Requires `config.autoCompact` to be enabled
+- Shows progress overlay during summarization
+
+**Manual Compact:**
+
+- Available via `/compact` command or command palette
+- Summarizes current session
+- Creates new session with summary as context
+
+**Compacting UI:**
 
 ```
-╭─ Timeline ──────────────────────────────────────────╮
-│                                                      │
-│ User: Check the authentication logic                │
-│   ├─ AI: I'll analyze the code...                   │
-│   ├─ Tool: read_file (auth.rs)                      │
-│   └─ AI: I found the issue...                       │
-│                                                      │
-│ User: Fix it please                                 │
-│   ├─ AI: Making changes...                          │
-│   ├─ Tool: edit_file (auth.rs)                      │
-│   └─ AI: Done! The bug is fixed.                    │
-│                                                      │
-│ [↑/↓ navigate, enter scroll to, r restore to point] │
+╭─────────────────────────────────────────────────────╮
+│ Summarizing                                         │
+│ Starting summarization...                           │
 ╰──────────────────────────────────────────────────────╯
 ```
 
-**Actions:**
-
-- **Enter:** Scroll to that message
-- **R:** Restore conversation to that point (revert)
-- **Tree structure:** Shows conversation hierarchy
-
-### Undo/Redo System
-
-**Undo (`/undo` or bound key):**
-
-- Reverts to previous user message
-- Shows diff stats
-- Displays redo hint
-
-**Redo (`ctrl+y` or `/redo`):**
-
-- Restores reverted messages
-- Re-applies tool changes
-- Updates session state
+> **Note:** Timeline view and undo/redo system were not found in the current OpenCode codebase and may be planned future features.
 
 ---
 
 ## Interaction Patterns
-
-### Mouse Support
-
-**Scrolling:**
-
-- Mouse wheel scrolls message area
-- Configurable speed (`scrollSpeed: 2`)
-- Smooth scrolling
-
-**Text Selection:**
-
-- Click and drag to select
-- Auto-copies to clipboard on release
-- Shows toast: "Copied to clipboard"
-- Accent background highlight
-- Works across message boundaries
 
 ### Keyboard Navigation
 
@@ -646,12 +618,6 @@ G           go to bottom
 ```
 up/ctrl+p   previous message
 down/ctrl+n next message
-```
-
-**Copying:**
-
-```
-space y     copy last message
 ```
 
 ### Input Priority System
@@ -892,60 +858,31 @@ go func() {
 - Color-coded by type
 - Top-right corner placement
 
-### Child Sessions
+### Child Sessions (Agent Tasks)
 
-For tool execution in isolation:
+OpenCode supports nested sessions via the Agent tool:
 
-```
-Main Session
-  ├─ Child #1 (shell command)
-  ├─ Child #2 (file analysis)
-  └─ Child #3 (search operation)
-```
+**Implementation:**
 
-**Navigation:**
-
-```
-space j     cycle to next child/parent
-space k     cycle to previous child/parent
+```go
+// Agent tool creates child sessions
+if toolCall.Name == agent.AgentToolName {
+    taskMessages, _ := messagesService.List(context.Background(), toolCall.ID)
+    // Renders nested tool calls from child session
+}
 ```
 
-**Visual Indicators:**
+**Visual Representation:**
 
-- Border color changes (accent)
-- "space k back" hint in header
-- Different background color
+- Tool calls from child sessions are rendered nested within the parent
+- Shows hierarchical structure of task execution
+- Each subtask rendered with indentation
 
-### Agent Switching
+**Use Cases:**
 
-Multiple agents with different behaviors:
-
-```
-Main Agent     - General coding
-Search Agent   - Information retrieval
-Review Agent   - Code review
-```
-
-**UI:**
-
-```
-┌─────────────┐
-│ MAIN AGENT  │  ← Color-coded (blue)
-└─────────────┘
-
-┌─────────────┐
-│ SEARCH AGENT│  ← Different color (green)
-└─────────────┘
-```
-
-**Cycle:** `space a` (or configured key)
-
-**Each agent has:**
-
-- Different model preferences
-- Different system prompts
-- Different tool access
-- Unique color indicator
+- Complex multi-step operations
+- Parallel task execution
+- Isolated context for specific operations
 
 ---
 
@@ -1425,22 +1362,24 @@ impl ThinkingBlock {
 ### Short-term (Weeks 2-4)
 
 4. **Add theme detection**
-5. **Implement attachment system**
+5. **Implement attachment system** (max 5, with delete mode)
 6. **Add history navigation**
 7. **Create completion dialog**
 
 ### Medium-term (Weeks 5-8)
 
-8. **Session list modal**
-9. **Timeline view**
-10. **Undo/redo system**
+8. **Session list modal** (with vim navigation)
+9. **Model selection dialog**
+10. **Command palette** (custom commands)
+11. **External editor integration** (`ctrl+e`)
 
 ### Long-term (Weeks 9-12)
 
-11. **Permission prompts**
-12. **Tool details UI**
-13. **Thinking blocks**
-14. **Performance optimizations**
+12. **Permission prompts** (tool-specific rendering)
+13. **Tool details UI** (nested rendering)
+14. **Thinking blocks** (with streaming)
+15. **Performance optimizations** (caching, async)
+16. **Multi-arguments dialog** (parameterized commands)
 
 ---
 
@@ -1460,7 +1399,7 @@ By applying these patterns to `dong`, we can create a **best-in-class agentic co
 
 **References:**
 
-- OpenCode: https://github.com/sst/opencode
+- OpenCode: https://github.com/opencode-ai/opencode
 - Bubbletea: https://github.com/charmbracelet/bubbletea
 - Lipgloss: https://github.com/charmbracelet/lipgloss
 - Ratatui: https://github.com/ratatui-org/ratatui
