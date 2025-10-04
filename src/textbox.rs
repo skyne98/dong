@@ -171,36 +171,36 @@ impl ReactiveTextbox {
         let is_valid = *self.is_valid.value();
         let validation_msg = self.validation_message.value().clone();
 
-        // Choose border color based on validation state and focus
         let border_color = if !is_valid {
             if is_focused {
-                Color::Red // Focused and invalid - bright red
+                Color::Red
             } else {
-                Color::DarkGray // Unfocused and invalid - dark gray to show "inactive but still wrong"
+                Color::DarkGray
             }
         } else if is_focused {
-            Color::Yellow // Focused and valid
+            Color::Yellow
         } else {
-            Color::White // Unfocused and valid
+            Color::Gray
         };
 
-        // Create title with validation message if invalid (show in both focused and unfocused states)
-        let display_title = if !is_valid {
-            format!(" {} - {} ", title, validation_msg)
-        } else {
+        // Only show title if there's a validation error
+        let display_title = if !is_valid && !validation_msg.is_empty() {
+            format!(" {} ", validation_msg)
+        } else if !title.is_empty() {
             format!(" {} ", title)
+        } else {
+            String::new()
         };
 
-        // Create block with appropriate style
         let block = Block::default()
             .title(display_title)
             .title_alignment(ratatui::layout::Alignment::Left)
             .borders(Borders::ALL)
             .style(Style::default().fg(border_color));
 
-        // Clone the textarea and set the block on the clone
         let mut textarea_with_block = self.textarea.clone();
         textarea_with_block.set_block(block);
+        
         f.render_widget(&textarea_with_block, area);
     }
 }

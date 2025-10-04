@@ -1,221 +1,273 @@
-use std::cell::RefCell;
-use std::io::{self, Result, stdout};
-use std::rc::Rc;
-use std::time::Duration;
-
-use ratatui::crossterm::event::{
-    self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, poll,
-};
-use ratatui::crossterm::{
-    execute,
-    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
-};
+use std::io::{self, Result};
+use ratatui::crossterm::event::{self, Event, KeyCode};
+use ratatui::crossterm::terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
+use ratatui::crossterm::{execute};
 use ratatui::{
     Frame, Terminal,
     backend::CrosstermBackend,
-    layout::{Alignment, Constraint, Direction, Layout},
-    style::{Color, Style},
-    text::{Line, Span},
+    layout::{Constraint, Direction, Layout, Rect},
+    style::Style,
+    text,
     widgets::{Block, Borders, Paragraph},
 };
-use tokio::sync::mpsc;
-use tokio::task::JoinHandle;
+use std::cell::RefCell;
+use std::rc::Rc;
 
-mod ai;
-mod chat;
-mod collapsible;
+mod services;
 mod textbox;
 mod vue;
 
-use crate::chat::{Message, ReactiveChat};
 use crate::textbox::ReactiveTextbox;
 
-enum AIEvent {
-    ThinkingComplete(Duration),
-    AgentResponse(String),
-}
-
-struct ChatApp {
-    // Chat window with messages
-    chat: ReactiveChat,
-
-    // Input textbox
+struct DemoApp {
     textbox: Rc<RefCell<ReactiveTextbox>>,
-
-    // Channel to receive user messages that need to be sent to AI
-    user_msg_rx: mpsc::UnboundedReceiver<String>,
-
-    // Channel sender to send AI events back to UI
-    ai_event_tx: mpsc::UnboundedSender<AIEvent>,
-
-    // Channel to receive AI responses
-    ai_rx: mpsc::UnboundedReceiver<AIEvent>,
-
-    // Handle to the current AI task (for cancellation)
-    ai_task_handle: Option<JoinHandle<()>>,
-
-    // Index of the thinking message (if any)
-    thinking_message_index: Option<usize>,
 }
 
-impl ChatApp {
+impl DemoApp {
     fn new() -> Self {
-        let chat = ReactiveChat::new();
-
-        // Create channels for user messages
-        let (user_msg_tx, user_msg_rx) = mpsc::unbounded_channel::<String>();
-
-        // Create channels for AI events
-        let (ai_event_tx, ai_rx) = mpsc::unbounded_channel::<AIEvent>();
-
-        // Create reactive textbox for message input
-        let chat_clone = chat.clone();
-        let user_msg_tx_clone = user_msg_tx.clone();
         let textbox = Rc::new(RefCell::new(
-            ReactiveTextbox::new("Type your message...")
-                .with_validator(|_text: &Vec<String>| {
-                    // Chat messages always valid - no restrictions
-                    (true, String::new())
+            ReactiveTextbox::new("Type a command... (Ctrl+D to submit)")
+                .with_validator(|text: &Vec<String>| {
+                    let cmd = text.join(" ");
+                    match cmd.as_str() {
+                        "toast" => (true, String::new()),
+                        "session" => (true, String::new()),
+                        "status" => (true, String::new()),
+                        "theme" => (true, String::new()),
+                        "" => (true, String::new()),
+                        _ => (false, "Unknown command. Try: toast, session, status, theme".to_string()),
+                    }
                 })
-                .on_submit(move |text: &Vec<String>| {
-                    let message_content = text.join("\n");
-                    if !message_content.trim().is_empty() {
-                        // Add user message to chat
-                        chat_clone.add_message(Message::user(&message_content));
-
-                        // Send to AI processing
-                        let _ = user_msg_tx_clone.send(message_content);
+                .on_submit(|text: &Vec<String>| {
+                    let cmd = text.join(" ");
+                    match cmd.as_str() {
+                        "toast" => {
+                            crate::services::toast_mut(|toast| {
+                                toast.success("Toast notification!");
+                                toast.info("This is an info message");
+                                toast.warning("Warning message");
+                                toast.error("Error message");
+                            });
+                        }
+                        "session" => {
+                            crate::services::session_mut(|session| {
+                                let id = session.create_session("New Session");
+                                crate::services::toast_mut(|toast| {
+                                    toast.success(&format!("Created session: {}", &id[..8]));
+                                });
+                            });
+                        }
+                        "status" => {
+                            crate::services::status_mut(|status| {
+                                status.set_model("gpt-4o");
+                                status.set_working(true);
+                            });
+                        }
+                        "theme" => {
+                            // Toggle between light and dark modes
+                            let new_mode = crate::services::theme(|theme| {
+                                use crate::services::theme::ThemeMode;
+                                match &*theme.mode.value() {
+                                    ThemeMode::Light => ThemeMode::Dark,
+                                    ThemeMode::Dark => ThemeMode::Light,
+                                    ThemeMode::Auto => ThemeMode::Light,
+                                }
+                            });
+                            
+                            crate::services::theme_mut(|theme| {
+                                theme.set_mode(new_mode.clone());
+                            });
+                            
+                            crate::services::toast_mut(|toast| {
+                                toast.info(&format!("Theme: {:?}", new_mode));
+                            });
+                        }
+                        _ => {}
                     }
                 }),
         ));
 
-        Self {
-            chat,
-            textbox,
-            user_msg_rx,
-            ai_event_tx,
-            ai_rx,
-            ai_task_handle: None,
-            thinking_message_index: None,
-        }
+        // Focus the textbox so it can accept input
+        textbox.borrow_mut().focus();
+
+        Self { textbox }
     }
 
-    fn focus_textbox(&mut self) {
-        self.textbox.borrow_mut().focus();
-    }
+    fn draw(&self, f: &mut Frame) {
+        let size = f.area();
 
-    fn unfocus_textbox(&mut self) {
-        self.textbox.borrow_mut().unfocus();
-    }
+        // Get theme colors
+        let (accent_color, border_color, text_muted) = crate::services::theme(|theme| {
+            (theme.accent_color(), theme.border_color(), theme.secondary_color())
+        });
 
-    fn handle_textbox_key(&mut self, key: ratatui::crossterm::event::KeyEvent) {
-        self.textbox.borrow_mut().handle_key(key);
-    }
+        // Check if we have an active session
+        let has_session = crate::services::session(|session| {
+            session.current_session_title().is_some()
+        });
 
-    fn is_textbox_focused(&self) -> bool {
-        *self.textbox.borrow().is_focused.value()
-    }
+        // Split screen based on whether we have a session
+        let main_chunks = if has_session {
+            Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([
+                    Constraint::Length(3),  // Session header
+                    Constraint::Min(3),     // Content
+                    Constraint::Length(3),  // Input
+                    Constraint::Length(1),  // Status bar
+                ])
+                .split(size)
+        } else {
+            Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([
+                    Constraint::Min(3),     // Content (home screen)
+                    Constraint::Length(3),  // Input
+                    Constraint::Length(1),  // Status bar
+                ])
+                .split(size)
+        };
 
-    fn scroll_chat_up(&self) {
-        self.chat.scroll_up();
-    }
+        let (content_idx, input_idx, status_idx) = if has_session {
+            (1, 2, 3)
+        } else {
+            (0, 1, 2)
+        };
 
-    fn scroll_chat_down(&self) {
-        self.chat.scroll_down();
-    }
-
-    fn focus_next_thinking(&self) {
-        self.chat.focus_next_thinking();
-    }
-
-    fn focus_prev_thinking(&self) {
-        self.chat.focus_prev_thinking();
-    }
-
-    fn toggle_focused_thinking(&self) {
-        self.chat.toggle_focused_thinking();
-    }
-
-    fn has_focused_message(&self) -> bool {
-        self.chat.focused_message.value().is_some()
-    }
-
-    fn process_ai_events(&mut self) {
-        // Check for new user messages to send to AI
-        while let Ok(user_message) = self.user_msg_rx.try_recv() {
-            // Cancel existing task if any
-            if let Some(handle) = self.ai_task_handle.take() {
-                handle.abort();
-            }
-
-            // Remove old thinking message if exists
-            if let Some(idx) = self.thinking_message_index.take() {
-                let mut msgs = (*self.chat.messages.value()).clone();
-                if idx < msgs.len() {
-                    msgs.remove(idx);
-                    self.chat.messages.set(msgs);
-                }
-            }
-
-            // Add new thinking message
-            self.chat.add_message(Message::thinking_in_progress());
-            let msg_count = self.chat.messages.value().len();
-            self.thinking_message_index = Some(msg_count - 1);
-
-            // Spawn new AI task
-            let event_tx = self.ai_event_tx.clone();
-            let handle = tokio::spawn(async move {
-                use crate::ai::{AIService, MockAI};
-                let ai = MockAI::new();
-
-                // Get AI response with thinking
-                let (thinking_duration, response) =
-                    ai.send_message_with_thinking(&user_message).await;
-
-                // Send events back to UI
-                let _ = event_tx.send(AIEvent::ThinkingComplete(thinking_duration));
-                let _ = event_tx.send(AIEvent::AgentResponse(response));
+        // Render session header if active
+        if has_session {
+            let session_title = crate::services::session(|session| {
+                session.current_session_title().unwrap_or_default()
             });
-
-            self.ai_task_handle = Some(handle);
+            
+            let header_lines = vec![
+                text::Line::from(format!("# {}", session_title)).style(Style::default().fg(accent_color)),
+                text::Line::from("  0K/0% ($0.00)            /share to create link").style(Style::default().fg(text_muted)),
+            ];
+            
+            let header = Paragraph::new(header_lines)
+                .block(Block::default()
+                    .borders(Borders::ALL)
+                    .border_style(Style::default().fg(border_color)));
+            f.render_widget(header, main_chunks[0]);
         }
 
-        // Process AI response events
-        while let Ok(event) = self.ai_rx.try_recv() {
-            match event {
-                AIEvent::ThinkingComplete(duration) => {
-                    // Replace thinking message with completed version
-                    if let Some(idx) = self.thinking_message_index {
-                        let mut msgs = (*self.chat.messages.value()).clone();
-                        if idx < msgs.len() {
-                            msgs[idx] = Message::thinking_complete(duration);
-                            self.chat.messages.set(msgs);
-                        }
-                    }
-                }
-                AIEvent::AgentResponse(response) => {
-                    self.chat.add_message(Message::agent(response));
-                    self.thinking_message_index = None;
-                    self.ai_task_handle = None;
+        // Main content area
+        if has_session {
+            // Chat view - messages will go here
+            let content = vec![
+                text::Line::from(""),
+                text::Line::from("Chat messages will appear here..."),
+                text::Line::from(""),
+            ];
+            f.render_widget(Paragraph::new(content), main_chunks[content_idx]);
+        } else {
+            // Home screen with ASCII logo
+            let logo_lines = vec![
+                "█▀▀▄  █▀▀█  █▀▀▄  █▀▀▀",
+                "█  █  █  █  █  █  █ ▀█",
+                "▀▀▀   ▀▀▀▀  ▀  ▀  ▀▀▀▀",
+            ];
+            
+            let mut home_content = vec![
+                text::Line::from(""),
+                text::Line::from(""),
+            ];
+            
+            // Center the logo
+            for line in logo_lines {
+                let padding = (size.width.saturating_sub(line.len() as u16)) / 2;
+                home_content.push(
+                    text::Line::from(format!("{}{}", " ".repeat(padding as usize), line))
+                        .style(Style::default().fg(accent_color))
+                );
+            }
+            
+            let version_text = format!("v{}", env!("CARGO_PKG_VERSION"));
+            let version_padding = (size.width.saturating_sub(version_text.len() as u16)) / 2;
+            
+            home_content.extend(vec![
+                text::Line::from(""),
+                text::Line::from(format!("{}{}", " ".repeat(version_padding as usize), version_text))
+                    .style(Style::default().fg(text_muted)),
+                text::Line::from(""),
+                text::Line::from(""),
+                text::Line::from("  Available commands:"),
+                text::Line::from("    toast    - Show toast notifications"),
+                text::Line::from("    session  - Create a new session"),
+                text::Line::from("    status   - Update status bar"),
+                text::Line::from("    theme    - Toggle light/dark mode"),
+                text::Line::from(""),
+            ]);
+            
+            f.render_widget(Paragraph::new(home_content), main_chunks[content_idx]);
+        }
+
+        // Render toast notifications
+        let secondary_color = crate::services::theme(|theme| theme.secondary_color());
+        crate::services::toast_mut(|toast_service| {
+            let toasts = toast_service.current_toasts();
+            if !toasts.is_empty() {
+                // Show up to 5 toasts stacked vertically from top-right
+                let max_toasts = 5;
+                let toast_height = 4;
+                
+                // Start toasts below the session header if it exists (header is 3 lines)
+                let toast_start_y = if has_session { 4 } else { 1 };
+                
+                for (i, toast) in toasts.iter().rev().take(max_toasts).enumerate() {
+                    let elapsed = toast.created_at.elapsed().as_secs();
+                    let total = toast.duration.as_secs();
+                    let remaining = total.saturating_sub(elapsed);
+                    
+                    let toast_text = vec![
+                        text::Line::from(format!("{} {}", toast.icon(), toast.message)),
+                        text::Line::from(format!("{}s", remaining)).style(Style::default().fg(secondary_color)),
+                    ];
+                    
+                    let toast_widget = Paragraph::new(toast_text)
+                        .block(Block::default()
+                            .borders(Borders::ALL)
+                            .border_style(Style::default().fg(toast.color())));
+                    
+                    let toast_area = Rect {
+                        x: size.width.saturating_sub(50),
+                        y: toast_start_y + (i as u16 * toast_height),
+                        width: 48,
+                        height: toast_height,
+                    };
+                    f.render_widget(toast_widget, toast_area);
                 }
             }
-        }
+        });
+
+        // Input area (with OpenCode-style prompt)
+        self.textbox.borrow().render(f, main_chunks[input_idx], "");
+        
+        // Status bar (OpenCode-style)
+        let status_text = crate::services::status(|status| {
+            format!("dong v{}    {}", env!("CARGO_PKG_VERSION"), status.status_text())
+        });
+        
+        let status_bar = Paragraph::new(text::Line::from(status_text))
+            .style(Style::default().fg(text_muted));
+        f.render_widget(status_bar, main_chunks[status_idx]);
     }
 
-    fn cancel_ai_task(&mut self) {
-        // Cancel current AI task
-        if let Some(handle) = self.ai_task_handle.take() {
-            handle.abort();
+    fn handle_event(&mut self, event: Event) -> bool {
+        match event {
+            Event::Key(key) => match key.code {
+                KeyCode::Esc => return false, // Exit
+                KeyCode::Tab => {
+                    // Focus next
+                }
+                _ => {
+                    self.textbox.borrow_mut().handle_key(key);
+                }
+            },
+            _ => {}
         }
-
-        // Remove thinking message
-        if let Some(idx) = self.thinking_message_index.take() {
-            let mut msgs = (*self.chat.messages.value()).clone();
-            if idx < msgs.len() {
-                msgs.remove(idx);
-                self.chat.messages.set(msgs);
-            }
-        }
+        true
     }
 }
 
@@ -223,168 +275,55 @@ impl ChatApp {
 async fn main() -> Result<()> {
     // Setup terminal
     enable_raw_mode()?;
-    let mut stdout = stdout();
-    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
+    let mut stdout = io::stdout();
+    execute!(stdout, EnterAlternateScreen)?;
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    // Create chat app
-    let mut app = ChatApp::new();
+    // Create app
+    let mut app = DemoApp::new();
 
-    // Auto-focus the textbox
-    app.focus_textbox();
+    // Initialize services
+    crate::services::session_mut(|session| {
+        session.create_session("Demo Session");
+    });
 
-    // Run the app
-    let res = run_app(&mut terminal, &mut app);
+    crate::services::status_mut(|status| {
+        status.set_model("demo");
+    });
 
-    // Restore terminal
-    disable_raw_mode()?;
-    execute!(
-        terminal.backend_mut(),
-        LeaveAlternateScreen,
-        DisableMouseCapture
-    )?;
-    terminal.show_cursor()?;
-
-    if let Err(err) = res {
-        println!("{err:?}");
-    }
-
-    Ok(())
-}
-
-fn run_app<B: ratatui::backend::Backend>(
-    terminal: &mut Terminal<B>,
-    app: &mut ChatApp,
-) -> io::Result<()> {
+    // Main loop
     loop {
-        // Process any pending AI events
-        app.process_ai_events();
+        // Draw
+        terminal.draw(|f| {
+            app.draw(f);
+        })?;
 
-        terminal.draw(|f| ui(f, app))?;
-
-        // Poll for events with a short timeout
-        if poll(Duration::from_millis(50))? {
+        // Handle events
+        if event::poll(std::time::Duration::from_millis(16))? {
             if let Event::Key(key) = event::read()? {
-                // Check for Ctrl+C to cancel AI task (works globally)
-                if key.code == KeyCode::Char('c')
-                    && key
-                        .modifiers
-                        .contains(ratatui::crossterm::event::KeyModifiers::CONTROL)
-                {
-                    app.cancel_ai_task();
-                    continue;
+                if key.code == KeyCode::Char('q') && key.modifiers.is_empty() {
+                    break;
                 }
-
-                // Handle textbox input if focused
-                if app.is_textbox_focused() {
-                    match key.code {
-                        KeyCode::Esc => app.unfocus_textbox(),
-                        KeyCode::PageUp => app.scroll_chat_up(),
-                        KeyCode::PageDown => app.scroll_chat_down(),
-                        _ => app.handle_textbox_key(key),
-                    }
-                } else {
-                    // Handle global controls
-                    match key.code {
-                        KeyCode::Char('q') => return Ok(()),
-                        KeyCode::Up | KeyCode::Char('k') => app.scroll_chat_up(),
-                        KeyCode::Down | KeyCode::Char('j') => app.scroll_chat_down(),
-                        KeyCode::PageUp => app.scroll_chat_up(),
-                        KeyCode::PageDown => app.scroll_chat_down(),
-
-                        // W/S: Navigate between thinking messages
-                        KeyCode::Char('w') | KeyCode::Char('W') => app.focus_prev_thinking(),
-                        KeyCode::Char('s') | KeyCode::Char('S') => app.focus_next_thinking(),
-
-                        // Space: Toggle expand/collapse of focused message
-                        KeyCode::Char(' ') => {
-                            if app.has_focused_message() {
-                                app.toggle_focused_thinking();
-                            } else {
-                                app.focus_textbox();
-                            }
-                        }
-
-                        _ => app.focus_textbox(),
-                    }
+                if !app.handle_event(Event::Key(key)) {
+                    break;
                 }
             }
         }
+
+        // Clean up expired toasts
+        crate::services::toast_mut(|toast| {
+            toast.cleanup();
+        });
+
+        // Small delay to prevent busy loop
+        tokio::time::sleep(std::time::Duration::from_millis(16)).await;
     }
-}
 
-fn ui(f: &mut Frame, app: &ChatApp) {
-    let size = f.area();
+    // Cleanup
+    disable_raw_mode()?;
+    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
+    terminal.show_cursor()?;
 
-    // Calculate dynamic textbox height based on content (min 3 lines, max 30% of screen)
-    let textbox_lines = app.textbox.borrow().text.value().len().max(1);
-    let textbox_height = (textbox_lines + 2)
-        .min(size.height as usize * 30 / 100)
-        .max(3); // +2 for borders
-
-    // Create vertical layout: chat area on top, input on bottom
-    let vertical_chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Min(0),                        // Chat area (takes remaining space)
-            Constraint::Length(textbox_height as u16), // Input textbox (dynamic)
-        ])
-        .split(size);
-
-    // Create horizontal layout for the chat area: chat on left, stats on right
-    let horizontal_chunks = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Percentage(75), // Chat messages (75%)
-            Constraint::Percentage(25), // Stats panel (25%)
-        ])
-        .split(vertical_chunks[0]);
-
-    // Render chat window
-    app.chat.render(f, horizontal_chunks[0]);
-
-    // Render stats panel
-    let message_count = app.chat.messages.value().len();
-    let stats_block = Block::default()
-        .title(" Stats ")
-        .title_alignment(Alignment::Left)
-        .borders(Borders::ALL)
-        .style(Style::default().fg(Color::Magenta));
-
-    let stats_text = vec![
-        Line::from(vec![
-            Span::styled("Messages: ", Style::default().fg(Color::White)),
-            Span::styled(
-                format!("{}", message_count),
-                Style::default().fg(Color::Green),
-            ),
-        ]),
-        Line::from(""),
-        Line::from(vec![Span::styled(
-            "Controls:",
-            Style::default().fg(Color::Yellow),
-        )]),
-        Line::from(vec![Span::raw("  ↑/k - Scroll up")]),
-        Line::from(vec![Span::raw("  ↓/j - Scroll down")]),
-        Line::from(vec![Span::raw("  w/s - Select msg")]),
-        Line::from(vec![Span::raw("  Space - Toggle")]),
-        Line::from(vec![Span::raw("  PgUp/PgDn - Page")]),
-        Line::from(vec![Span::raw("  Ctrl+C - Cancel AI")]),
-        Line::from(vec![Span::raw("  ESC - Unfocus")]),
-        Line::from(vec![Span::raw("  q - Quit")]),
-    ];
-
-    let stats_paragraph = Paragraph::new(stats_text)
-        .block(stats_block)
-        .alignment(Alignment::Left);
-
-    f.render_widget(stats_paragraph, horizontal_chunks[1]);
-
-    // Render input textbox
-    app.textbox.borrow().render(
-        f,
-        vertical_chunks[1],
-        "Message Input (Enter=newline, Ctrl+D=send, ESC=unfocus, q=quit when unfocused)",
-    );
+    Ok(())
 }
