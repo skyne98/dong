@@ -212,9 +212,9 @@ opencode v0.1.89  ~/project:main    MAIN AGENT
 ```
 ╭─ username ──────────────────────────────────────────╮
 │ Check the token validation logic                    │
-│                                                      │
+│                                                     │
 │ txt auth.rs    img screenshot.png                   │
-╰──────────────────────────────────────────────────────╯
+╰─────────────────────────────────────────────────────╯
 ```
 
 **Features:**
@@ -232,8 +232,8 @@ opencode v0.1.89  ~/project:main    MAIN AGENT
 ╭─ gpt-4o ────────────────────────────────────────────╮
 │ I found the issue. The token validation is missing  │
 │ a null check before calling isEmpty().              │
-│                                                      │
-│ ╭─ TOOL: edit_file ─────────────────────────────╮  │
+│                                                     │
+│ ╭─ TOOL: edit_file ──────────────────────────────╮  │
 │ │ file: auth.rs                                  │  │
 │ │ status: ✓ completed (2.3s)                     │  │
 │ │                                                │  │
@@ -241,7 +241,7 @@ opencode v0.1.89  ~/project:main    MAIN AGENT
 │ │   + added null check                           │  │
 │ │   + improved error message                     │  │
 │ ╰────────────────────────────────────────────────╯  │
-╰──────────────────────────────────────────────────────╯
+╰─────────────────────────────────────────────────────╯
 ```
 
 **Elements:**
@@ -260,10 +260,10 @@ opencode v0.1.89  ~/project:main    MAIN AGENT
 │ 1. User submits credentials                         │
 │ 2. Token generated                                  │
 │ 3. Validation happens here <- BUG                   │
-│                                                      │
+│                                                     │
 │ The issue is that we're calling isEmpty() on a      │
 │ potentially null token...                           │
-╰──────────────────────────────────────────────────────╯
+╰─────────────────────────────────────────────────────╯
 ```
 
 **Behavior:**
@@ -279,12 +279,12 @@ opencode v0.1.89  ~/project:main    MAIN AGENT
 ╭─ TOOL: edit_file ───────────────────────────────────╮
 │ file: src/auth.rs                                   │
 │ status: ✓ completed (2.3s)                          │
-│                                                      │
-│ ╭─ Diff ─────────────────────────────────────────╮ │
-│ │ - if token.isEmpty():                          │ │
-│ │ + if token == null or token.isEmpty():        │ │
-│ ╰────────────────────────────────────────────────╯ │
-╰──────────────────────────────────────────────────────╯
+│                                                     │
+│ ╭─ Diff ─────────────────────────────────────────╮  │
+│ │ - if token.isEmpty():                          │  │
+│ │ + if token == null or token.isEmpty():         │  │
+│ ╰────────────────────────────────────────────────╯  │
+╰─────────────────────────────────────────────────────╯
 ```
 
 **States:**
@@ -486,52 +486,52 @@ Down Arrow / Ctrl+N  → Next message in history
 │   ctrl+?       show this help                       │
 │   enter        send message                         │
 │   ctrl+c       quit application                     │
-│                                                      │
+│                                                     │
 │ Navigation                                          │
 │   ctrl+u       page up                              │
 │   ctrl+d       page down                            │
 │   g g          go to top                            │
 │   G            go to bottom                         │
-│                                                      │
+│                                                     │
 │ Session                                             │
 │   ctrl+n       new session                          │
 │   ctrl+s       switch session                       │
 │   ctrl+k       commands                             │
-│                                                      │
+│                                                     │
 │ [press esc to close]                                │
-╰──────────────────────────────────────────────────────╯
+╰─────────────────────────────────────────────────────╯
 ```
 
 #### Session List (`ctrl+s`)
 
 ```
 ╭─ Switch Session ────────────────────────────────────╮
-│                                                      │
+│                                                     │
 │ ▸ Debug authentication bug                          │
 │   Implement user dashboard                          │
 │   Fix database migration                            │
 │   Add payment integration                           │
-│                                                      │
-│ [↑/↓/j/k navigate, enter select, esc close]        │
-╰──────────────────────────────────────────────────────╯
+│                                                     │
+│ [↑/↓/j/k navigate, enter select, esc close]         │
+╰─────────────────────────────────────────────────────╯
 ```
 
 #### Model Selection (`ctrl+o`)
 
 ```
-╭─ Select Model ──────────────────────────────────────╮
-│                                                      │
-│ OpenAI                                              │
+╭─ Select Model ─────────────────────────────────────╮
+│                                                    │
+│ OpenAI                                             │
 │ ▸ gpt-4o            128K context    $2.50/$10.00   │
 │   gpt-4-turbo       128K context    $10.00/$30.00  │
 │   gpt-3.5-turbo     16K context     $0.50/$1.50    │
-│                                                      │
-│ Anthropic                                           │
+│                                                    │
+│ Anthropic                                          │
 │   claude-3-opus     200K context    $15.00/$75.00  │
 │   claude-3-sonnet   200K context    $3.00/$15.00   │
-│                                                      │
+│                                                    │
 │ [↑/↓ navigate, enter select, esc cancel]           │
-╰──────────────────────────────────────────────────────╯
+╰────────────────────────────────────────────────────╯
 ```
 
 **Shows:**
@@ -803,9 +803,9 @@ go func() {
 ### Permission Prompts
 
 ```
-╭─────────────────────────────────────────────────────╮
-│ The AI wants to run:                                │
-│                                                      │
+╭────────────────────────────────────────────────────╮
+│ The AI wants to run:                               │
+│                                                    │
 │ ╭─ TOOL: shell ──────────────────────────────────╮ │
 │ │ command: rm -rf node_modules                   │ │
 │ │                                                │ │
@@ -813,7 +813,7 @@ go func() {
 │ │ [a]     approve always                         │ │
 │ │ [esc]   reject                                 │ │
 │ ╰────────────────────────────────────────────────╯ │
-╰──────────────────────────────────────────────────────╯
+╰────────────────────────────────────────────────────╯
 ```
 
 **Behavior:**
@@ -830,7 +830,7 @@ go func() {
 
 ```
 ┌────────────────────────────────────┐
-│ ✓ Session deleted successfully    │
+│ ✓ Session deleted successfully     │
 └────────────────────────────────────┘
 ```
 
